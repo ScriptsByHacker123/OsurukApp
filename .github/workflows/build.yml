@@ -4,15 +4,22 @@ on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
+      - uses: actions/checkout@v3
+      
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+          pip3 install --upgrade buildozer
+          
       - name: Build with Buildozer
-        uses: ArtemSBulgakov/buildozer-action@v1
-        with:
-          buildozer_version: stable
-        # Eğer yukarıdaki hata devam ederse, Docker ile uğraşmayan 
-        # daha garantili şu adımları kullan:
+        run: buildozer android debug
         
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: package
+          path: bin/*.apk
+          
